@@ -1,22 +1,95 @@
-name: Telegram Notification
+name: Telegram Notifications
 
 on:
   push:
+  create:
+  delete:
+  release:
+    types: [published]
+  watch:
+    types: [started]
+  fork:
 
 jobs:
-  notify:
+  telegram:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send Telegram Message
+      - name: Send Telegram Notification
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          EVENT: ${{ github.event_name }}
         run: |
-          MESSAGE="✅ New push to ${{ github.repository }}
 
-          👤 Author: ${{ github.actor }}
-          🌿 Branch: ${{ github.ref_name }}
-          💬 Commit: ${{ github.event.head_commit.message }}"
+          case "$EVENT" in
 
-          curl -s -X POST \
-            https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            --data-urlencode text="$MESSAGE"
+          push)
+            MSG="🚀 <b>New Push</b>
+
+📦 <b>Repository:</b> ${{ github.repository }}
+👤 <b>Author:</b> ${{ github.actor }}
+🌿 <b>Branch:</b> ${{ github.ref_name }}
+
+💬 <b>Commit:</b>
+${{ github.event.head_commit.message }}
+
+🔗 ${{ github.event.head_commit.url }}"
+          ;;
+
+          create)
+            MSG="🌱 <b>Created</b>
+
+👤 ${{ github.actor }}
+
+Type: ${{ github.event.ref_type }}
+Name: <code>${{ github.event.ref }}</code>"
+          ;;
+
+          delete)
+            MSG="🗑 <b>Deleted</b>
+
+👤 ${{ github.actor }}
+
+Type: ${{ github.event.ref_type }}
+Name: <code>${{ github.event.ref }}</code>"
+          ;;
+
+          release)
+            MSG="🚀 <b>New Release</b>
+
+📦 ${{ github.repository }}
+
+🏷 <b>${{ github.event.release.tag_name }}</b>
+
+🔗 ${{ github.event.release.html_url }}"
+          ;;
+
+          watch)
+            MSG="⭐ <b>Repository Starred</b>
+
+👤 ${{ github.actor }}
+
+📦 ${{ github.repository }}"
+          ;;
+
+          fork)
+            MSG="🍴 <b>Repository Forked</b>
+
+👤 ${{ github.actor }}
+
+📦 ${{ github.repository }}"
+          ;;
+
+          *)
+            MSG="ℹ GitHub Event: $EVENT"
+          ;;
+
+          esac
+
+          curl -s \
+            -X POST \
+            "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d chat_id="${CHAT_ID}" \
+            -d parse_mode="HTML" \
+            --data-urlencode text="$MSG"
