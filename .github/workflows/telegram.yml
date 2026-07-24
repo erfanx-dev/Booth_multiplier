@@ -22,84 +22,104 @@ jobs:
           EVENT: ${{ github.event_name }}
 
         run: |
+          if [ "$EVENT" = "push" ]; then
 
-          case "$EVENT" in
+            MESSAGE=$(cat <<EOF
+🚀 New Push
 
-          push)
-            MSG="🚀 <b>New Push</b>
+Repository: ${{ github.repository }}
+User: ${{ github.actor }}
+Branch: ${{ github.ref_name }}
 
-📦 <b>Repository:</b> ${{ github.repository }}
-👤 <b>Author:</b> ${{ github.actor }}
-🌿 <b>Branch:</b> ${{ github.ref_name }}
-
-💬 <b>Commit:</b>
+Commit:
 ${{ github.event.head_commit.message }}
 
-🔗 ${{ github.event.head_commit.url }}"
-          ;;
+Link:
+${{ github.event.head_commit.url }}
+EOF
+)
 
+          elif [ "$EVENT" = "create" ]; then
 
-          create)
-            MSG="🌱 <b>Created</b>
+            MESSAGE=$(cat <<EOF
+🌱 Created
 
-👤 <b>User:</b> ${{ github.actor }}
+User: ${{ github.actor }}
 
-📌 <b>Type:</b> ${{ github.event.ref_type }}
-📂 <b>Name:</b> ${{ github.event.ref }}"
-          ;;
+Type:
+${{ github.event.ref_type }}
 
+Name:
+${{ github.event.ref }}
+EOF
+)
 
-          delete)
-            MSG="🗑 <b>Deleted</b>
+          elif [ "$EVENT" = "delete" ]; then
 
-👤 <b>User:</b> ${{ github.actor }}
+            MESSAGE=$(cat <<EOF
+🗑 Deleted
 
-📌 <b>Type:</b> ${{ github.event.ref_type }}
-📂 <b>Name:</b> ${{ github.event.ref }}"
-          ;;
+User: ${{ github.actor }}
 
+Type:
+${{ github.event.ref_type }}
 
-          release)
-            MSG="🚀 <b>New Release</b>
+Name:
+${{ github.event.ref }}
+EOF
+)
 
-📦 ${{ github.repository }}
+          elif [ "$EVENT" = "release" ]; then
 
-🏷 <b>Tag:</b>
+            MESSAGE=$(cat <<EOF
+🚀 New Release
+
+Repository:
+${{ github.repository }}
+
+Tag:
 ${{ github.event.release.tag_name }}
 
-🔗 ${{ github.event.release.html_url }}"
-          ;;
+Link:
+${{ github.event.release.html_url }}
+EOF
+)
 
+          elif [ "$EVENT" = "watch" ]; then
 
-          watch)
-            MSG="⭐ <b>Repository Starred</b>
+            MESSAGE=$(cat <<EOF
+⭐ New Star
 
-👤 ${{ github.actor }}
+User:
+${{ github.actor }}
 
-📦 ${{ github.repository }}"
-          ;;
+Repository:
+${{ github.repository }}
+EOF
+)
 
+          elif [ "$EVENT" = "fork" ]; then
 
-          fork)
-            MSG="🍴 <b>Repository Forked</b>
+            MESSAGE=$(cat <<EOF
+🍴 Repository Forked
 
-👤 ${{ github.actor }}
+User:
+${{ github.actor }}
 
-📦 ${{ github.repository }}"
-          ;;
+Repository:
+${{ github.repository }}
+EOF
+)
 
+          else
 
-          *)
-            MSG="ℹ GitHub Event:
-$EVENT"
-          ;;
+            MESSAGE="GitHub Event: $EVENT"
 
-          esac
+          fi
 
 
           curl -s \
             -X POST \
             "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -d chat_id="${CHAT_ID}" \
-            -d parse_mode="HTML" \
-            --data-urlencode text="$MSG"
+            --data-urlencode text="$MESSAGE"
