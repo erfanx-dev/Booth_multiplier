@@ -20,6 +20,7 @@ jobs:
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           EVENT: ${{ github.event_name }}
+
         run: |
 
           case "$EVENT" in
@@ -37,33 +38,38 @@ ${{ github.event.head_commit.message }}
 🔗 ${{ github.event.head_commit.url }}"
           ;;
 
+
           create)
             MSG="🌱 <b>Created</b>
 
-👤 ${{ github.actor }}
+👤 <b>User:</b> ${{ github.actor }}
 
-Type: ${{ github.event.ref_type }}
-Name: <code>${{ github.event.ref }}</code>"
+📌 <b>Type:</b> ${{ github.event.ref_type }}
+📂 <b>Name:</b> ${{ github.event.ref }}"
           ;;
+
 
           delete)
             MSG="🗑 <b>Deleted</b>
 
-👤 ${{ github.actor }}
+👤 <b>User:</b> ${{ github.actor }}
 
-Type: ${{ github.event.ref_type }}
-Name: <code>${{ github.event.ref }}</code>"
+📌 <b>Type:</b> ${{ github.event.ref_type }}
+📂 <b>Name:</b> ${{ github.event.ref }}"
           ;;
+
 
           release)
             MSG="🚀 <b>New Release</b>
 
 📦 ${{ github.repository }}
 
-🏷 <b>${{ github.event.release.tag_name }}</b>
+🏷 <b>Tag:</b>
+${{ github.event.release.tag_name }}
 
 🔗 ${{ github.event.release.html_url }}"
           ;;
+
 
           watch)
             MSG="⭐ <b>Repository Starred</b>
@@ -73,6 +79,7 @@ Name: <code>${{ github.event.ref }}</code>"
 📦 ${{ github.repository }}"
           ;;
 
+
           fork)
             MSG="🍴 <b>Repository Forked</b>
 
@@ -81,11 +88,14 @@ Name: <code>${{ github.event.ref }}</code>"
 📦 ${{ github.repository }}"
           ;;
 
+
           *)
-            MSG="ℹ GitHub Event: $EVENT"
+            MSG="ℹ GitHub Event:
+$EVENT"
           ;;
 
           esac
+
 
           curl -s \
             -X POST \
