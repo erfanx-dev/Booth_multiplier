@@ -1,0 +1,22 @@
+name: Telegram Notification
+
+on:
+  push:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Telegram Message
+        run: |
+          MESSAGE="✅ New push to ${{ github.repository }}
+
+          👤 Author: ${{ github.actor }}
+          🌿 Branch: ${{ github.ref_name }}
+          💬 Commit: ${{ github.event.head_commit.message }}"
+
+          curl -s -X POST \
+            https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            --data-urlencode text="$MESSAGE"
