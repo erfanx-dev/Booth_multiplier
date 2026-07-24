@@ -2,124 +2,20 @@ name: Telegram Notifications
 
 on:
   push:
-  create:
-  delete:
-  release:
-    types: [published]
-  watch:
-    types: [started]
-  fork:
 
 jobs:
   telegram:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send Telegram Notification
+      - name: Send Telegram Message
         env:
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          EVENT: ${{ github.event_name }}
 
         run: |
-          if [ "$EVENT" = "push" ]; then
-
-            MESSAGE=$(cat <<EOF
-🚀 New Push
-
-Repository: ${{ github.repository }}
-User: ${{ github.actor }}
-Branch: ${{ github.ref_name }}
-
-Commit:
-${{ github.event.head_commit.message }}
-
-Link:
-${{ github.event.head_commit.url }}
-EOF
-)
-
-          elif [ "$EVENT" = "create" ]; then
-
-            MESSAGE=$(cat <<EOF
-🌱 Created
-
-User: ${{ github.actor }}
-
-Type:
-${{ github.event.ref_type }}
-
-Name:
-${{ github.event.ref }}
-EOF
-)
-
-          elif [ "$EVENT" = "delete" ]; then
-
-            MESSAGE=$(cat <<EOF
-🗑 Deleted
-
-User: ${{ github.actor }}
-
-Type:
-${{ github.event.ref_type }}
-
-Name:
-${{ github.event.ref }}
-EOF
-)
-
-          elif [ "$EVENT" = "release" ]; then
-
-            MESSAGE=$(cat <<EOF
-🚀 New Release
-
-Repository:
-${{ github.repository }}
-
-Tag:
-${{ github.event.release.tag_name }}
-
-Link:
-${{ github.event.release.html_url }}
-EOF
-)
-
-          elif [ "$EVENT" = "watch" ]; then
-
-            MESSAGE=$(cat <<EOF
-⭐ New Star
-
-User:
-${{ github.actor }}
-
-Repository:
-${{ github.repository }}
-EOF
-)
-
-          elif [ "$EVENT" = "fork" ]; then
-
-            MESSAGE=$(cat <<EOF
-🍴 Repository Forked
-
-User:
-${{ github.actor }}
-
-Repository:
-${{ github.repository }}
-EOF
-)
-
-          else
-
-            MESSAGE="GitHub Event: $EVENT"
-
-          fi
-
-
-          curl -s \
-            -X POST \
-            "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-            -d chat_id="${CHAT_ID}" \
-            --data-urlencode text="$MESSAGE"
+          curl -X POST \
+          "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+          -d chat_id="${CHAT_ID}" \
+          -d text="🚀 New push by ${{ github.actor }}"
+          
