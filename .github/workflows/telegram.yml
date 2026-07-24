@@ -2,20 +2,109 @@ name: Telegram Notifications
 
 on:
   push:
+  create:
+  delete:
+  release:
+    types: [published]
 
 jobs:
   telegram:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
       - name: Send Telegram Message
         env:
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          EVENT: ${{ github.event_name }}
 
         run: |
+
+          if [ "$EVENT" = "push" ]; then
+
+            FILES=$(git diff --name-only HEAD^ HEAD)
+
+            MESSAGE=$(cat <<EOF
+🚀 <b>NEW PUSH</b>
+
+📦 <b>Repository:</b>
+${{ github.repository }}
+
+👤 <b>User:</b>
+${{ github.actor }}
+
+🌿 <b>Branch:</b>
+${{ github.ref_name }}
+
+💬 <b>Commit:</b>
+${{ github.event.head_commit.message }}
+
+📂 <b>Changed files:</b>
+$FILES
+
+🔗 <b>Commit URL:</b>
+${{ github.event.head_commit.url }}
+EOF
+)
+
+          elif [ "$EVENT" = "create" ]; then
+
+            MESSAGE=$(cat <<EOF
+🌱 <b>CREATED</b>
+
+👤 User:
+${{ github.actor }}
+
+📌 Type:
+${{ github.event.ref_type }}
+
+📂 Name:
+${{ github.event.ref }}
+EOF
+)
+
+          elif [ "$EVENT" = "delete" ]; then
+
+            MESSAGE=$(cat <<EOF
+🗑 <b>DELETED</b>
+
+👤 User:
+${{ github.actor }}
+
+📌 Type:
+${{ github.event.ref_type }}
+
+📂 Name:
+${{ github.event.ref }}
+EOF
+)
+
+          elif [ "$EVENT" = "release" ]; then
+
+            MESSAGE=$(cat <<EOF
+🏷 <b>NEW RELEASE</b>
+
+📦 Repository:
+${{ github.repository }}
+
+🏷 Tag:
+${{ github.event.release.tag_name }}
+
+🔗 Link:
+${{ github.event.release.html_url }}
+EOF
+)
+
+          fi
+
+
           curl -X POST \
           "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
           -d chat_id="${CHAT_ID}" \
-          -d text="🚀 New push by ${{ github.actor }}"
-          
+          -d parse_mode="HTML" \
+          --data-urlencode text="$MESSAGE"
