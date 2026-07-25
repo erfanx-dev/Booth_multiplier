@@ -1,18 +1,10 @@
+import booth_types::*;
+
 module booth_encoder_unit(
     input  logic [2:0] data_in,
     input  logic       enable,
-    output logic [2:0] operation
+    output booth_encoding_t operation
 );
-
-
-typedef enum logic [2:0] {
-    ZERO        = 3'b000,
-    ONE_POS     = 3'b001,
-    ONE_NEG     = 3'b010,
-    TWO_POS     = 3'b011,
-    TWO_NEG     = 3'b100
-} booth_encoding_t;
-
 
 always_comb begin
 
