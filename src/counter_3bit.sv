@@ -7,7 +7,7 @@ module counter_3bit(
 );
 
     always@(posedge clk) begin
-        if (rst)
+        if (rst or c_out)
             count <= 3'b000;
         else if (load_cnt)
             count <= 3'b000;
@@ -15,5 +15,5 @@ module counter_3bit(
             count <= count + 1;
     end
 
-    assign done = (count == 3'b111) ? 1'b1 : 1'b0;
+    assign c_out = (count == 3'b111) ? 1'b1 : 1'b0;
 endmodule
