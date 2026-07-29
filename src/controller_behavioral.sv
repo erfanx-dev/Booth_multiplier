@@ -1,4 +1,4 @@
-import booth_types::*;
+
 
 module controller (
     input logic clk,
@@ -57,45 +57,18 @@ module controller (
             end
 
             EXECUTE: begin
-                case(booth_operation)
-                    ZERO:
-                    assign do_shift = 1;
-                    assign do_count = 1;
-                    assign send_zero = 2'b11;
-                    next_state = (c_out) ? DONE : EXECUTE;
-
-                    ONE_POS:
-
-                        next_state = ONE_POS;
-
-                    TWO_POS:
-                        next_state = TWO_POS;
-
-                    TWO_NEG:
-                        next_state = TWO_NEG;
-
-                    ONE_NEG:
-                    default:
-                        next_state = ONE_NEG;
-
-                    default:
-                        next_state = EXECUTE;
-                endcase
+                do_cnt = 1;
+                do_shift = 1; 
+                load_A = 0;
+                eiACreg = 0;
+                next_state = (c_out) ? DONE : EXECUTE;
             end
 
-            ONE_POS,
-            ONE_NEG,
-            TWO_POS,
-            TWO_NEG,
-            ZERO: begin
-                if(c_out) begin
-                    next_state = IDLE;
-                end else begin
-                    next_state = EXECUTE;
-                end
+            DONE: begin
+                eiDreg = 1;
+                next_state = IDLE;
             end
 
         endcase
-        
     end
 endmodule
