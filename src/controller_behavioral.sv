@@ -37,6 +37,18 @@ module controller (
     end
 
     always_comb begin : next_state_logic
+
+        eiAreg    = 0;
+        eiBreg    = 0;
+        eiACreg   = 0;
+        eiDreg    = 0;
+        do_shift  = 0;
+        do_cnt    = 0;
+        init_cnt  = 0;
+        load_A    = 0;
+        done      = 0;
+
+    
         next_state = present_state;
         case(present_state)
             IDLE: begin
