@@ -2,17 +2,19 @@ module counter_3bit(
     input  logic clk,
     input  logic rst,
     input  logic enable,
-    input logic load_cnt,
+    input  logic load_cnt,
+    output logic c_out,
     output logic [2:0] count
 );
 
-    always@(posedge clk) begin
-        if (rst or c_out)
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
             count <= 3'b000;
-        else if (load_cnt)
+        end else if (load_cnt) begin
             count <= 3'b000;
-        else if (enable)
+        end else if (enable) begin
             count <= count + 1;
+        end
     end
 
     assign c_out = (count == 3'b111) ? 1'b1 : 1'b0;

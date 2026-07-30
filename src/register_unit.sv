@@ -1,4 +1,4 @@
-module register_unit #(width) ( 
+module register_unit #(parameter width = 16) (
     input logic clk,
     input logic rst,
     input logic write_enable,
@@ -6,13 +6,12 @@ module register_unit #(width) (
     output logic [width-1:0] data_out
 );
 
-    reg [width-1:0] register;
+    logic [width-1:0] register;
 
-    always @(posedge clk, posedge rst) begin
+    always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
-            register <= ({width{1'b0}});
-        end
-        else if (write_enable) begin
+            register <= {width{1'b0}};
+        end else if (write_enable) begin
             register <= data_in;
         end
     end
